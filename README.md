@@ -15,7 +15,7 @@ created in the mount location when docker is run.
 # Build docker image
 ```
 cd <path/to/code/page-view-counts>
-docker build -t myimage .
+docker build -t page-count .
 ```
 
 # Run page-count application
