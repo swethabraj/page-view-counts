@@ -18,12 +18,12 @@ docker build -t myimage .
 Please Update `<path/to/code/page-view-counts>` to the path that the code is cloned to.
 
 ```
-docker run -it -v <path/to/code/page-view-counts>/.ivy:/home/jovyan/.ivy2 -v <path/to/code/page-view-counts>:/home/jovyan/page_count page-count
+docker run -it -v <path/to/code/page-view-counts>/page-view-counts/.ivy:/home/jovyan/.ivy2 -v <path/to/code/page-view-counts>/page-view-counts:/home/jovyan/page_count page-count
 ```
 
 # Run unit tests
 ```
-docker run -it -v <path/to/code/page-view-counts>/.ivy:/home/jovyan/.ivy2 page-count python -m pytest tests
+docker run -it -v <path/to/code/page-view-counts>/page-view-counts/.ivy:/home/jovyan/.ivy2 page-count python -m pytest tests
 ```
 
 # TODO
