@@ -1,6 +1,6 @@
 # About this application
 Page-count is a dockerized application, that can stream a specific folder location, namely
-`source`(**this folder is present in this page-view-counts**)
+`source`(**the folder is present in this repo**)
 and calculate the `7days page view count` and `7day user-page view count`.
 
 These counts/aggregations are stored in a delta path, `page_count_aggregations`, that will get
