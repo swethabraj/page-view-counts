@@ -1,0 +1,11 @@
+[
+    {
+    "pageId": "page1",
+    "userId": "user1",
+    "timestamp": 1630229111000 
+    },{
+        "pageId": "page2",
+        "userId": "user2",
+        "timestamp": 1629431919000
+    }
+]
