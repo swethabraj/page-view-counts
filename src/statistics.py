@@ -157,18 +157,21 @@ class PageUserCount(Statistics):
             output_sink="delta",
         )
         ingest_records_stream.awaitTermination()
-        # Dirty HACK for when the delta table isnt there yet.
-        if not DeltaTable.isDeltaTable(self.spark, self.path):
-            self.spark.read.format("delta").load(self.path).filter(
-                F.col("date") == F.current_date()
-            ).show()
-        else:
-            # TODO: Fix this to only print updates
-            count_updates = read_stream(
-                result_schema, self.spark, "delta", self.path
-            )
-            count_updates = count_updates.filter(
-                F.col("date") == F.current_date()
-            )
-            console_print_stream = write_stream(count_updates)
-            console_print_stream.awaitTermination()
+        try:
+            # Dirty HACK for when the delta table isnt there yet.
+            if not DeltaTable.isDeltaTable(self.spark, self.path):
+                self.spark.read.format("delta").load(self.path).filter(
+                    F.col("date") == F.current_date()
+                ).show()
+            else:
+                # TODO: Fix this to only print updates
+                count_updates = read_stream(
+                    result_schema, self.spark, "delta", self.path
+                )
+                count_updates = count_updates.filter(
+                    F.col("date") == F.current_date()
+                )
+                console_print_stream = write_stream(count_updates)
+                console_print_stream.awaitTermination()
+        except Exception as e:
+            print(f"No Data found in {self.input_path}")
