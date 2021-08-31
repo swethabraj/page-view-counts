@@ -8,6 +8,10 @@ created in the mount location when docker is run.
 
 **Streaming is currently implemented as a batch process**
 
+# Prerequisites
+
+* Docker installed
+
 # Build docker image
 ```
 cd <path/to/code/page-view-counts>
