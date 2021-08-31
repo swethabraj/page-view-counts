@@ -1,5 +1,5 @@
 # About this application
-Page-count is a dockerized application, that can stream data from [here](https://github.com/swethabraj/page-view-counts/tree/master/source)
+Page-count is a dockerized application, that can stream data(batched streaming) from [here](https://github.com/swethabraj/page-view-counts/tree/master/source)
 and calculate the `7days page view count` and `7day user-page view count`.
 
 These counts/aggregations are stored in a delta path, `page_count_aggregations`, that will get
