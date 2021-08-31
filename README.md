@@ -1,22 +1,21 @@
 # About this application
-Page-count is a dockerized application, that can stream a specific folder location, namely
-`source`(**the folder is present in this repo**)
+Page-count is a dockerized application, that can stream data from [here](https://github.com/swethabraj/page-view-counts/tree/master/source)
 and calculate the `7days page view count` and `7day user-page view count`.
 
 These counts/aggregations are stored in a delta path, `page_count_aggregations`, that will get
-created in the mount location when docker is run.
+created in the mount location when application is run.
 
-**Streaming is currently implemented as a batch process**
-
-# Prerequisites
+### Prerequisites
 
 * Docker installed
 
-# Build docker image
-```
-cd <path/to/code/page-view-counts>
-docker build -t page-count .
-```
+### How to use
+
+* Clone this repo to your local machine.
+* `cd <path/to/code/page-view-counts>`
+* Build docker image `docker build -t page-count .`
+    
+Once the image is built, add files to the [source](https://github.com/swethabraj/page-view-counts/tree/master/source) and then run the application using the following commands
 
 # Run page-count application
 Please Update `<path/to/code/page-view-counts>` to the path that the code is cloned to.
