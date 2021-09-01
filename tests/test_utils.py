@@ -13,7 +13,7 @@ def test_read_stream_pass(spark):
         schema,
         spark,
         input_format="json",
-        input_path=f"{curr_dir}/tests/data/source",
+        input_path=f"{curr_dir}/tests/data/raw",
         read_options={"mutliline": "true"},
     )
     assert read_stream_df.isStreaming
@@ -26,7 +26,7 @@ def test_write_stream(spark):
         schema,
         spark,
         input_format="json",
-        input_path=f"{curr_dir}/tests/data/source",
+        input_path=f"{curr_dir}/tests/data/raw",
         read_options={"multiline": "true"},
     )
     query = write_stream(read_stream_df, output_sink="memory")
@@ -38,7 +38,7 @@ def test_write_stream(spark):
         spark.read.format("json")
         .schema(schema)
         .option("multiline", "true")
-        .load(f"{curr_dir}/tests/data/source")
+        .load(f"{curr_dir}/tests/data/raw")
     )
 
     assert_frame_equal(actual_output.toPandas(), expected_output.toPandas())

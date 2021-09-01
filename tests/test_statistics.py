@@ -18,9 +18,7 @@ def test_page_count_stats_pass(spark, tmpdir):
     os.mkdir(input_loc)
     with open(f"{input_loc}/test_current.json", "w") as outfile:
         json.dump(data, outfile, indent="")
-    shutil.copyfile(
-        f"{curr_dir}/tests/data/source/test.json", f"{input_loc}/test.json"
-    )
+
 
     # First Run
     PageUserCount(
@@ -44,8 +42,8 @@ def test_page_count_stats_pass(spark, tmpdir):
 
     expected_page_count_df = spark.createDataFrame(
         [
-            ("eec52fd6-3da0-4764-bf5a-bb5dad0f2a0f", 3),
-            ("bc6a078c-2718-4131-9726-34d61998321e,eec52fd6-3da0-4764-bf5a-bb5dad0f2a0f", 3)
+            ("eec52fd6-3da0-4764-bf5a-bb5dad0f2a0f", 2),
+            ("bc6a078c-2718-4131-9726-34d61998321e,eec52fd6-3da0-4764-bf5a-bb5dad0f2a0f", 2)
         ],
         ("key string, last_7day_count long"),
     )
