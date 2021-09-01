@@ -1,8 +1,9 @@
 from abc import abstractmethod
 import os
-from pyspark.sql import functions as F, SparkSession
 from delta.tables import *
 from delta import *
+from pyspark.sql import functions as F, SparkSession
+from pyspark.sql.utils import AnalysisException
 
 from src.utils import read_stream, write_stream
 
@@ -30,7 +31,7 @@ class Statistics:
     ):
         spark_builder = (
             SparkSession.builder.master("local[8]")
-            .config("spark.sql.shuffle.partitions", 1)
+            .config("spark.sql.shuffle.partitions", "1")
             .config("spark.streaming.concurrentJobs", "2")
             .config(
                 "spark.sql.extensions",
@@ -66,7 +67,7 @@ class PageUserCount(Statistics):
     def create_upsert_func(self, batch_df, batch_id):
         """
         Function run foreachBatch writeStream.
-        It calculates the last_7day_count for page views and user-page views/
+        It calculates the daily_count for page views and user-page views/
         Updates/Inserts the count depending on if
         key i.e pageId or userId,pageId, already exists
         """
@@ -77,11 +78,7 @@ class PageUserCount(Statistics):
             .selectExpr(
                 "pageId as key",
                 "date",
-                """sum(count) OVER (
-                    PARTITION BY pageId 
-                    ORDER BY cast(date AS timestamp) 
-                    RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND CURRENT ROW
-                ) AS last_7day_count""",
+                "count as daily_count"
             )
         )
 
@@ -91,28 +88,26 @@ class PageUserCount(Statistics):
             .selectExpr(
                 "concat_ws(',', userId, pageId) as key",
                 "date",
-                """sum(count) OVER (
-                    PARTITION BY pageId, userId 
-                    ORDER BY cast(date AS timestamp) 
-                    RANGE BETWEEN INTERVAL 7 DAYS PRECEDING AND CURRENT ROW
-                ) AS last_7day_count """,
+                "count as daily_count"
             )
         )
 
         final_df = page_daily_counts.unionByName(user_page_daily_counts)
         if DeltaTable.isDeltaTable(self.spark, self.path):
             existing_counts = self.spark.read.format("delta").load(self.path)
+            existing_counts.show()
             final_df = (
-                final_df.withColumnRenamed(
-                    "last_7day_count", "last_7day_count_updates"
-                )
+                final_df
+                .withColumnRenamed("daily_count", "daily_count_updates")
                 .join(existing_counts, ["key", "date"], "left")
                 .selectExpr(
                     "key",
                     "date",
-                    "last_7day_count_updates+coalesce(last_7day_count,0) as last_7day_count",
+                    "daily_count_updates+coalesce(daily_count,0) as daily_count",
                 )
             )
+            final_df.show()
+
             target_df = DeltaTable.forPath(self.spark, self.path)
             (
                 target_df.alias("target")
@@ -125,7 +120,7 @@ class PageUserCount(Statistics):
                 .execute()
             )
         else:
-            (final_df.write.format("delta").mode("append").save(self.path))
+            final_df.write.format("delta").mode("append").save(self.path)
         batch_df.unpersist()
 
     @property
@@ -158,20 +153,29 @@ class PageUserCount(Statistics):
         )
         ingest_records_stream.awaitTermination()
         try:
+            table_exists = DeltaTable.isDeltaTable(self.spark, self.path)
             # Dirty HACK for when the delta table isnt there yet.
-            if not DeltaTable.isDeltaTable(self.spark, self.path):
-                self.spark.read.format("delta").load(self.path).filter(
-                    F.col("date") == F.current_date()
-                ).show()
-            else:
+            if table_exists:
                 # TODO: Fix this to only print updates
                 count_updates = read_stream(
                     result_schema, self.spark, "delta", self.path
                 )
-                count_updates = count_updates.filter(
-                    F.col("date") == F.current_date()
+            else:
+                count_updates = (
+                    self.spark.read.format("delta")
+                    .load(self.path)
                 )
+            count_updates = (
+                count_updates
+                .filter("date >= current_date() - interval 6 days")
+                .groupBy("key")
+                .agg(F.sum("daily_count").alias("last_7day_count"))
+                .selectExpr("key", "current_date() as date", "last_7day_count")
+            )
+            if table_exists:
                 console_print_stream = write_stream(count_updates)
                 console_print_stream.awaitTermination()
-        except Exception as e:
+            else:
+                count_updates.show()
+        except AnalysisException as e:
             print(f"No Data found in {self.input_path}")
