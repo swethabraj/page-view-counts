@@ -30,7 +30,7 @@ class Statistics:
         schema=None,
     ):
         spark_builder = (
-            SparkSession.builder.master("local[8]")
+            SparkSession.builder.master("local[6]")
             .config("spark.sql.shuffle.partitions", "1")
             .config("spark.streaming.concurrentJobs", "2")
             .config(
