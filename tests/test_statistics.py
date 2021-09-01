@@ -49,7 +49,7 @@ def test_page_count_stats_pass(spark, tmpdir):
     )
     expected_page_count_df = (
         expected_page_count_df.withColumn("date", current_date())
-        .select("key", "date", "last_7day_count")
+        .select("key", "date", "daily_count")
         .orderBy("key")
     )
     assert_frame_equal(df.toPandas(), expected_page_count_df.toPandas())
