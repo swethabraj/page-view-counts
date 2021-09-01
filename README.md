@@ -1,34 +1,33 @@
 # About this application
-Page-count is a dockerized application, that can stream a specific folder location, namely
-`source`(**the folder is present in this repo**)
+Page-count is a dockerized application, that can stream data(batched streaming) from [here](https://github.com/swethabraj/page-view-counts/tree/master/source)
 and calculate the `7days page view count` and `7day user-page view count`.
 
 These counts/aggregations are stored in a delta path, `page_count_aggregations`, that will get
-created in the mount location when docker is run.
+created in the mount location when application is run.
 
-**Streaming is currently implemented as a batch process**
-
-# Prerequisites
+### Prerequisites
 
 * Docker installed
 
-# Build docker image
-```
-cd <path/to/code/page-view-counts>
-docker build -t page-count .
-```
+### How to use
 
-# Run page-count application
+* Clone this repo to your local machine.
+* `cd <path/to/code/page-view-counts>`
+* Build docker image `docker build -t page-count .`
+    
+Once the image is built, add files to the [source](https://github.com/swethabraj/page-view-counts/tree/master/source) and then run the application using the following commands
+
+#### Run page-count application
 Please Update `<path/to/code/page-view-counts>` to the path that the code is cloned to.
 
 ```
 docker run -it -v <path/to/code/page-view-counts>/page-view-counts/.ivy:/home/jovyan/.ivy2 -v <path/to/code/page-view-counts>/page-view-counts:/home/jovyan/page_count page-count
 ```
 
-# Run unit tests
+#### Run unit tests
 ```
 docker run -it -v <path/to/code/page-view-counts>/page-view-counts/.ivy:/home/jovyan/.ivy2 page-count python -m pytest tests
 ```
 
-# TODO
+## TODO
 * Handle exceptions better
