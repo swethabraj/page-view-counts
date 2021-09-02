@@ -95,7 +95,6 @@ class PageUserCount(Statistics):
         final_df = page_daily_counts.unionByName(user_page_daily_counts)
         if DeltaTable.isDeltaTable(self.spark, self.path):
             existing_counts = self.spark.read.format("delta").load(self.path)
-            existing_counts.show()
             final_df = (
                 final_df
                 .withColumnRenamed("daily_count", "daily_count_updates")
@@ -106,7 +105,6 @@ class PageUserCount(Statistics):
                     "daily_count_updates+coalesce(daily_count,0) as daily_count",
                 )
             )
-            final_df.show()
 
             target_df = DeltaTable.forPath(self.spark, self.path)
             (

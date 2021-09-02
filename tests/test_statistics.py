@@ -45,7 +45,7 @@ def test_page_count_stats_pass(spark, tmpdir):
             ("eec52fd6-3da0-4764-bf5a-bb5dad0f2a0f", 2),
             ("bc6a078c-2718-4131-9726-34d61998321e,eec52fd6-3da0-4764-bf5a-bb5dad0f2a0f", 2)
         ],
-        ("key string, last_7day_count long"),
+        ("key string, daily_count long"),
     )
     expected_page_count_df = (
         expected_page_count_df.withColumn("date", current_date())
